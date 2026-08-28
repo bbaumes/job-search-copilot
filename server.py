@@ -73,7 +73,7 @@ def add_company(name: str, tier: str, status: str) -> str:
     return f"Added '{name}' (Tier: {tier_value}, Status: {status_value})."
     
 # ============================================================
-# TOOL 3: update_status — modify an existing company's status
+# TOOL 3: update_status - modify an existing company's status
 # ============================================================
 @mcp.tool()
 def update_status(company_name: str, new_status: str) -> str:
@@ -110,6 +110,9 @@ def update_status(company_name: str, new_status: str) -> str:
         properties={"Status": {"select": {"name": new_status}}},
     )
     return f"Updated '{matched_name}' status to {new_status}."
-
+	
+	
+		
+		
 if __name__ == "__main__":
     mcp.run()
