@@ -118,13 +118,21 @@ def update_status(company_name: str, new_status: str) -> str:
 # TOOL: web_search - general web search via Tavily
 # ============================================================
 @mcp.tool()
-def web_search(query: str, max_results: int = 5) -> str:
+def web_search(query: str, max_results: int = 4) -> str:
     """Search the web for current information on any topic. Returns titles,
     URLs, and content snippets from the top results. Use for finding news,
     companies, facts, or anything requiring up-to-date web information."""
 
+    # Cap results regardless of what's requested — a runaway guardrail.
+    max_results = min(max_results, 8)
+
     try:
-        response = tavily.search(query=query, max_results=max_results)
+        response = tavily.search(
+            query=query,
+            max_results=max_results,
+            search_depth="basic",   # explicit: avoids auto-upgrade to 2-credit "advanced"
+            chunks_per_source=2,    # limit content per result to control token size
+        )
     except Exception as e:
         return f"Search failed: {e}"
 
