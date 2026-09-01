@@ -2,11 +2,14 @@ import os
 from dotenv import load_dotenv
 from notion_client import Client
 from mcp.server.fastmcp import FastMCP
+from tavily import TavilyClient
+
 
 load_dotenv()
 
 notion = Client(auth=os.environ["NOTION_TOKEN"])
 DATA_SOURCE_ID = os.environ["NOTION_DATA_SOURCE_ID"]
+tavily = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
 mcp = FastMCP("job-search-copilot")
 
@@ -111,6 +114,32 @@ def update_status(company_name: str, new_status: str) -> str:
     )
     return f"Updated '{matched_name}' status to {new_status}."
 	
+# ============================================================
+# TOOL: web_search - general web search via Tavily
+# ============================================================
+@mcp.tool()
+def web_search(query: str, max_results: int = 5) -> str:
+    """Search the web for current information on any topic. Returns titles,
+    URLs, and content snippets from the top results. Use for finding news,
+    companies, facts, or anything requiring up-to-date web information."""
+
+    try:
+        response = tavily.search(query=query, max_results=max_results)
+    except Exception as e:
+        return f"Search failed: {e}"
+
+    results = response.get("results", [])
+    if not results:
+        return f"No results found for '{query}'."
+
+    lines = []
+    for r in results:
+        title = r.get("title", "(no title)")
+        url = r.get("url", "")
+        content = r.get("content", "")
+        lines.append(f"{title}\n{url}\n{content}\n")
+
+    return "\n".join(lines)
 	
 		
 		

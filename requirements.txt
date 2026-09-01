@@ -1,0 +1,4 @@
+tavily-python
+mcp>=1.28,<2
+notion-client
+python-dotenv
